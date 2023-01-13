@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.sql.Date;
-import java.util.List;
 
 @Entity
 @Table(name="products")
@@ -51,10 +49,10 @@ public class Product {
 
     @Column(name = "supplier")
     private String supplier;
-//
-//    @ManyToMany
-//    @JoinTable(name = "product_suppliers" , joinColumns = @JoinColumn(name = "product_id"),inverseJoinColumns = @JoinColumn(name = "supplier_id"))
-//    private List<Supplier> suppliers;
+
+//    @ManyToOne
+//   @JoinColumn(name = "product_id" ,nullable = false)
+//    private Supplier supplier;
 
 
 }
