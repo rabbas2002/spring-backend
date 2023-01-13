@@ -5,6 +5,7 @@ import com.example.springbackend.helper.ExcelHelper;
 import com.example.springbackend.model.Product;
 import com.example.springbackend.repositories.ProductRepository;
 import com.example.springbackend.services.ExcelService;
+import com.example.springbackend.services.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,11 +24,13 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ExcelController {
     private final ExcelService excelService;
+    private final ProductService productService;
     private final ProductRepository productRepository;
 
     public ExcelController(ExcelService excelService,
-                           ProductRepository productRepository) {
+                           ProductService productService, ProductRepository productRepository) {
         this.excelService = excelService;
+        this.productService = productService;
         this.productRepository = productRepository;
     }
     @PostMapping("/upload")
@@ -51,37 +54,68 @@ public class ExcelController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
     }
 
-    @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAllProducts(@RequestParam(required = false)String name,@RequestParam(defaultValue = "0")int page,@RequestParam(defaultValue = "5") int size) {
-        try {
-            List<Product> products = excelService.getAllProducts();
-            Pageable paging = PageRequest.of(page, size);
-
-            if (products.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            else{
-                Page<Product>productPage;
-                if (name==null){
-                    productPage = productRepository.findAll(paging);
-
-                }
-                else{
-                    productPage = productRepository.searchProductsByNameIsContainingIgnoreCase(name,paging);
-                }
-                products = productPage.getContent();
-                Map<String, Object> response = new HashMap<>();
-                response.put("tutorials", products);
-                response.put("currentPage", productPage.getNumber());
-                response.put("totalItems", productPage.getTotalElements());
-                response.put("totalPages", productPage.getTotalPages());
-                return new ResponseEntity<>(products, HttpStatus.OK);
-            }
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/products")
+//    public ResponseEntity<List<Product>> getAllProducts(@RequestParam(required = false)String name,@RequestParam(defaultValue = "0")int page,@RequestParam(defaultValue = "5") int size) {
+//        try {
+//            List<Product> products = productService.getAllProducts();
+//            Pageable paging = PageRequest.of(page, size);
+//
+//            if (products.isEmpty()) {
+//                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//            }
+//            else{
+//                Page<Product>productPage;
+//                if (name==null){
+//                    productPage = productRepository.findAll(paging);
+//
+//                }
+//                else{
+//                    productPage = productRepository.searchProductsByNameIsContainingIgnoreCase(name,paging);
+//                }
+//                products = productPage.getContent();
+//                Map<String, Object> response = new HashMap<>();
+//                response.put("products", products);
+//                response.put("currentPage", productPage.getNumber());
+//                response.put("totalItems", productPage.getTotalElements());
+//                response.put("totalPages", productPage.getTotalPages());
+//                return new ResponseEntity<>(products, HttpStatus.OK);
+//            }
+//
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//    @GetMapping("/suppliers")
+//    public ResponseEntity<List<Product>> getSupplierProducts(@RequestParam(required = false)String name,@RequestParam(defaultValue = "0")int page,@RequestParam(defaultValue = "5") int size){
+//        try {
+//            List<Product> products = productService.getAllProducts();
+//            Pageable paging = PageRequest.of(page, size);
+//            if (products.isEmpty()) {
+//                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//            }
+//            else{
+//                Page<Product>productPage;
+//                if (name==null){
+//                    productPage = productRepository.findAll(paging);
+//
+//                }
+//                else{
+//                    productPage = productRepository.findAllBySupplierContainingIgnoreCase(name,paging);
+//                }
+//                products = productPage.getContent();
+//                Map<String, Object> response = new HashMap<>();
+//                response.put("products", products);
+//                response.put("currentPage", productPage.getNumber());
+//                response.put("totalItems", productPage.getTotalElements());
+//                response.put("totalPages", productPage.getTotalPages());
+//                return new ResponseEntity<>(products, HttpStatus.OK);
+//            }
+//
+//        }
+//        catch (Exception e){
+//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
 
 }

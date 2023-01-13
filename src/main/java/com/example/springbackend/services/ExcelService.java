@@ -20,27 +20,11 @@ public class ExcelService {
     }
     public void save(MultipartFile file) {
         try {
-            List<Product> tutorials = ExcelHelper.excelToProducts(file.getInputStream());
-            productRepository.saveAll(tutorials);
+            List<Product> products = ExcelHelper.excelToProducts(file.getInputStream());
+            productRepository.saveAll(products);
         } catch (IOException e) {
             throw new RuntimeException("fail to store excel data: " + e.getMessage());
         }
     }
-
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
-    }
-    public List<Product>getProductsByName(String name,Pageable pageable ){
-        List<Product>products = new ArrayList<>();
-        if (name!=null){
-            products = productRepository.searchProductsByNameIsContainingIgnoreCase(name,pageable).getContent();
-        }
-        else{
-            products = productRepository.findAll();
-        }
-        return  products;
-
-    }
-
 
 }
