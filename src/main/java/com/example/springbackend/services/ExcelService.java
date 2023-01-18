@@ -3,12 +3,10 @@ package com.example.springbackend.services;
 import com.example.springbackend.helper.ExcelHelper;
 import com.example.springbackend.model.Product;
 import com.example.springbackend.repositories.ProductRepository;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

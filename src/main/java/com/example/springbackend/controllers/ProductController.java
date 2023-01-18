@@ -49,7 +49,6 @@ public class ProductController {
                 }
                 else{
                     productPage = productRepository.searchProductsByNameIsContainingIgnoreCase(name,paging);
-                    System.out.println(productPage.getTotalElements());
                 }
                return helper(products,productPage);
             }
@@ -59,55 +58,53 @@ public class ProductController {
         }
     }
     @GetMapping("/suppliers")
-    public ResponseEntity<List<Product>> getSupplierProducts(@RequestParam(required = false)String name,@RequestParam(defaultValue = "0")int page,@RequestParam(defaultValue = "5") int size){
+    public ResponseEntity<List<Product>> getSupplierProducts(@RequestParam(required = false)String supplierName, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "5") int size, @RequestParam(required = false)String productName){
         try {
             List<Product> products = productService.getAllProducts();
-
             Pageable paging = PageRequest.of(page, size);
             if (products.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
             else{
                 Page<Product>productPage;
-                if (name==null){
+                if (supplierName ==null){
                     productPage = productRepository.findAll(paging);
 
                 }
                 else{
-                    productPage = productRepository.findAllBySupplierContainingIgnoreCase(name,paging);
+                    if(productName!=null){
+                        productPage = productRepository.filterProductsBySupplierAndProductName(supplierName,productName,paging);
+                    }
+                    else{
+                        productPage = productRepository.findAllBySupplierContainingIgnoreCase(supplierName,paging);
+                    }
                 }
                 return helper(products,productPage);
             }
+
         }
         catch (Exception e){
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @GetMapping("/suppliers/unexpired")
-    public ResponseEntity<List<Product>>getUnexpiredProducts(@RequestParam(required = false)String supplierName,@RequestParam(defaultValue = "false")Boolean flag,@RequestParam(defaultValue = "0")int page,@RequestParam(defaultValue = "5")int size){
-        try{
-            List<Product> products = productService.getAllProducts();
-            Pageable paging = PageRequest.of(page, size);
-            Page<Product>productPage;
-            if (supplierName!=null && flag){
-                productPage = productRepository.filterProductsUsingNameAndExpiryDate(supplierName,paging);
-                return helper(products,productPage);
-            }
-            if(supplierName!=null && !flag){
-                return getSupplierProducts(supplierName,0,3);
-            }
-            if(supplierName==null && flag){
 
-                productPage =productRepository.findUnExpiredProducts(paging);
-                System.out.println(productPage.getTotalElements());
+    @GetMapping("/suppliers/unexpired")
+    public ResponseEntity<List<Product>> getSupplierUnexpiredProducts(@RequestParam(required = true)String supplierName,@RequestParam(defaultValue = "0")int page,@RequestParam(defaultValue = "5")int size){
+        try {
+            List<Product>products = productService.getAllProducts();
+            Pageable paging = PageRequest.of(page,size);
+            Page<Product>productPage;
+            if (supplierName!=null){
+                productPage = productRepository.filterProductsUsingSupplierName(supplierName,paging);
                 return helper(products,productPage);
             }
+            return null;
+
         }
         catch (Exception e){
-            e.printStackTrace();
+
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return null;
     }
 
 }

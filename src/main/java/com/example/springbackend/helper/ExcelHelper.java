@@ -19,8 +19,39 @@ public class ExcelHelper {
         }
         return true;
     }
+    private static Date getDate(String dateString){
+        HashMap<String,Integer>months = new HashMap<>();
+        months.put("Jan",Calendar.JANUARY);
+        months.put("Feb",Calendar.FEBRUARY);
+        months.put("Mar",Calendar.MARCH);
+        months.put("Apr",Calendar.APRIL);
+        months.put("May",Calendar.MAY);
+        months.put("Jun",Calendar.JUNE);
+        months.put("Jul",Calendar.JULY);
+        months.put("Aug",Calendar.AUGUST);
+        months.put("Sept",Calendar.SEPTEMBER);
+        months.put("Oct",Calendar.OCTOBER);
+        months.put("Nov",Calendar.NOVEMBER);
+        months.put("Dec",Calendar.DECEMBER);
+        if(dateString.length()>10) {
+            int date = Integer.parseInt(dateString.substring(0,2));
+            String month = "";
+            int i = 3;
+            while (dateString.charAt(i)!='-'){
+                month+=dateString.charAt(i);
+                i++;
+            }
+            i++;
+            int year  = Integer.parseInt(dateString.substring(i));
+            return new Date(year-1900,months.get(month),date);
+        }
+        else{
+            return null;
+        }
+    }
     private static Product setProductData(Row currentRow){
         Product product = new Product();
+
         //setID
         product.setId((long)currentRow.getRowNum());
         product.setCode(currentRow.getCell(0).toString());
@@ -45,35 +76,10 @@ public class ExcelHelper {
             product.setSupplier(currentRow.getCell(10).toString());
         }
 
-        HashMap<String,Integer>months = new HashMap<>();
-        months.put("Jan",Calendar.JANUARY);
-        months.put("Feb",Calendar.FEBRUARY);
-        months.put("Mar",Calendar.MARCH);
-        months.put("Apr",Calendar.APRIL);
-        months.put("May",Calendar.MAY);
-        months.put("Jun",Calendar.JUNE);
-        months.put("Jul",Calendar.JULY);
-        months.put("Aug",Calendar.AUGUST);
-        months.put("Sept",Calendar.SEPTEMBER);
-        months.put("Oct",Calendar.OCTOBER);
-        months.put("Nov",Calendar.NOVEMBER);
-        months.put("Dec",Calendar.DECEMBER);
+
         String dateString = currentRow.getCell(8).toString();
-        if(dateString.length()>10){
-            int date = Integer.parseInt(dateString.substring(0,2));
-            String month = "";
-            int i = 3;
-            while (dateString.charAt(i)!='-'){
-                month+=dateString.charAt(i);
-                i++;
-            }
-            i++;
-            int year  = Integer.parseInt(dateString.substring(i));
-            product.setExp(new Date(year-1900,months.get(month),date));
-        }
-        else{
-            product.setExp(null );
-        }
+        Date expDate = getDate(dateString);
+        product.setExp(expDate);
         return product;
     }
     public static List<Product> excelToProducts(InputStream is) {
@@ -93,6 +99,8 @@ public class ExcelHelper {
                 }
 
                 productList.add(setProductData(currentRow));
+
+
             }
             workbook.close();
             return productList;

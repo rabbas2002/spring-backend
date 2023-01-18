@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 import java.sql.Date;
 
 @Entity
-@Table(name="products")
+@Table(name="product")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "product_id")
     private Long id;
 
     @Column(name = "code")
@@ -49,10 +49,4 @@ public class Product {
 
     @Column(name = "supplier")
     private String supplier;
-
-//    @ManyToOne
-//   @JoinColumn(name = "product_id" ,nullable = false)
-//    private Supplier supplier;
-
-
 }
