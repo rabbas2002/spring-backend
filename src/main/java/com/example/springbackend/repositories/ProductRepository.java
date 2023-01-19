@@ -6,16 +6,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-public interface ProductRepository extends JpaRepository<Product,Long> {
-    Page<Product>searchProductsByNameIsContainingIgnoreCase(String name,Pageable page);
-    Page<Product>findAllBySupplierContainingIgnoreCase(String name,Pageable pageable);
-    @Query("SELECT p FROM Product p WHERE  p.stock>0 AND p.supplier LIKE %:supplierName%")
-    Page<Product>filterProductsUsingSupplierName(@Param("supplierName") String supplierName,Pageable pageable);
-
-    @Query("SELECT p FROM Product p WHERE p.supplier LIKE %:supplier% AND p.name LIKE %:productName%")
-    Page<Product>filterProductsBySupplierAndProductName(@Param("supplier")String supplier,@Param("productName")String productName,Pageable pageable);
-
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    //to list all the products of a given supplier
+    @Query("SELECT p FROM Product p WHERE p.supplier=:supplierName AND p.stock>0")
+    Page<Product>getAllProductsBySupplierName(@Param("supplierName") String supplierName,Pageable pageable);
+    //to search the products in the supplier's inventory.
+    @Query("SELECT p FROM Product p WHERE p.name LIKE %:productName% AND p.supplier=:supplierName AND p.stock>0 ")
+    Page<Product>searchProductsFromSupplierInventory(@Param("productName")String productName,@Param("supplierName")String supplierName,Pageable pageable);
+    //to get only the products that didn't expire in the supplier's inventory
+    @Query("SELECT p FROM Product p WHERE p.supplier=:supplierName AND p.stock>0 AND p.exp>CURRENT_DATE ")
+    Page<Product>getUnexpiredProducts(@Param("supplierName")String supplierName,Pageable pageable);
+    //to search the unexpired products in the supplier's inventory
+    @Query("SELECT p FROM Product p WHERE p.supplier=:supplierName AND p.stock>0 AND p.exp>CURRENT_DATE AND p.name LIKE %:productName%")
+    Page<Product>searchUnexpiredProducts(@Param("supplierName")String supplierName,@Param("productName")String productName,Pageable pageable);
 
 }
 

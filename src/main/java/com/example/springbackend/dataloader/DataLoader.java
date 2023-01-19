@@ -1,15 +1,16 @@
-package com.example.springbackend.helper;
+package com.example.springbackend.dataloader;
 
 import com.example.springbackend.model.Product;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
 import java.util.*;
-
-public class ExcelHelper {
+public class DataLoader {
     public static String TYPE =  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     static String[]HEADERs = {"Id","code","name","batch","stock","deal","free","mrp","rate","exp","company","supplier"};
     static String SHEET = "sample_inventory";
@@ -51,7 +52,6 @@ public class ExcelHelper {
     }
     private static Product setProductData(Row currentRow){
         Product product = new Product();
-
         //setID
         product.setId((long)currentRow.getRowNum());
         product.setCode(currentRow.getCell(0).toString());
@@ -67,7 +67,6 @@ public class ExcelHelper {
         product.setFree(Math.round(Float.parseFloat(currentRow.getCell(5).toString())));
         product.setMrp(Float.parseFloat(currentRow.getCell(6).toString()));
         product.setRate(Float.parseFloat(currentRow.getCell(7).toString()));
-
         product.setCompany(currentRow.getCell(9).toString());
         if(currentRow.getCell(10)==null){
             product.setSupplier("");
@@ -75,16 +74,14 @@ public class ExcelHelper {
         else{
             product.setSupplier(currentRow.getCell(10).toString());
         }
-
-
         String dateString = currentRow.getCell(8).toString();
         Date expDate = getDate(dateString);
         product.setExp(expDate);
         return product;
     }
     public static List<Product> excelToProducts(InputStream is) {
+        Logger logger = LoggerFactory.getLogger(DataLoader.class);
         try {
-
             Workbook workbook = new XSSFWorkbook(is);
             Sheet sheet = workbook.getSheet(SHEET);
             Iterator<Row> rows = sheet.iterator();
@@ -97,14 +94,14 @@ public class ExcelHelper {
                     rowNumber++;
                     continue;
                 }
-
                 productList.add(setProductData(currentRow));
-
 
             }
             workbook.close();
+            logger.info("Parsed the Excel File Successfully!");
             return productList;
         } catch (IOException e) {
+            logger.error("failed to parse Excel file: " + e.getMessage());
             throw new RuntimeException("fail to parse Excel file: " + e.getMessage());
         }
     }
